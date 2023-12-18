@@ -1,6 +1,5 @@
 package com.example.redis;
 
-import com.example.redis.domain.Aircraft;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +11,9 @@ import org.springframework.data.redis.serializer.StringRedisSerializer;
 
 @SpringBootApplication
 public class RedisApplication {
+	/**
+	 * Redis 데이터베이스에 접근하는 템플릿 생성
+	 */
 	@Bean
 	public RedisOperations<String, Aircraft> redisOperations(RedisConnectionFactory factory) {
 		Jackson2JsonRedisSerializer<Aircraft> serializer = new Jackson2JsonRedisSerializer<>(Aircraft.class);
