@@ -25,6 +25,7 @@ public class PlaneFinderPoller {
 
     @Scheduled(fixedRate = 1000)
     private void pollPlanes() {
+        System.out.println("Starting Aircraft Polling...");
         connectionFactory.getConnection().serverCommands().flushDb();
 
         // Redis에 데이터 저장
