@@ -8,10 +8,12 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Set;
+
 @EnableScheduling
 @Component
 public class PlaneFinderPoller {
-    private WebClient client = WebClient.create("http://localhost:7634/aircraft");
+    private final WebClient client = WebClient.create("http://localhost:7634/aircraft");
 
     private final RedisConnectionFactory connectionFactory;
     private final RedisOperations<String, Aircraft> redisOperations;
@@ -25,6 +27,7 @@ public class PlaneFinderPoller {
     private void pollPlanes() {
         connectionFactory.getConnection().serverCommands().flushDb();
 
+        // Redis에 데이터 저장
         client.get()
                 .retrieve()
                 .bodyToFlux(Aircraft.class)
@@ -32,9 +35,16 @@ public class PlaneFinderPoller {
                 .toStream()
                 .forEach(ac -> redisOperations.opsForValue().set(ac.getReg(), ac));
 
-        redisOperations.opsForValue()
+        // Redis에 저장된 데이터 키 조회
+        Set<String> aircraftKeys = redisOperations.opsForValue()
                 .getOperations()
-                .keys("*")
-                .forEach(ac -> System.out.println(redisOperations.opsForValue().get(ac)));
+                .keys("*");
+
+        // Redis에 데이터 키를 조회하여 데이터 출력
+        if (aircraftKeys != null) {
+            for (String aircraftKey : aircraftKeys) {
+                System.out.println(redisOperations.opsForValue().get(aircraftKey));
+            }
+        }
     }
 }
